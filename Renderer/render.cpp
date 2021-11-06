@@ -4,6 +4,10 @@
 #include <fstream>
 #include <string>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "STB/stb_image.h"
+
+
 namespace aie {
 	geometry makeGeometry(const vertex* verts, GLsizei vertCount, const GLuint* indeces, GLsizei indexCount) {
 		//create new instance of geomitry
@@ -105,6 +109,79 @@ namespace aie {
 		
 	}
 
+	texture makeTexture(unsigned width, unsigned height, unsigned channels, const unsigned char* pixels)
+	{
+		texture tex = { 0,width,height,channels };
+
+		GLenum oglFormat = GL_RED;
+		switch (channels) 
+		{
+		case 1:
+			oglFormat = GL_RED;
+			break;
+		case 2:
+			oglFormat = GL_RG;
+			break;
+		case 3:
+			oglFormat = GL_RGB;
+			break;
+		case 4:
+			oglFormat = GL_RGBA;
+			break;
+		default:
+			oglFormat = GL_RED;
+			break;
+		}
+		glGenTextures(1, &tex.handle);
+		glBindTexture(GL_TEXTURE_2D, tex.handle);
+
+		glTexImage2D(GL_TEXTURE_2D, //what texture
+					 0, //mipmap level image quality
+					 oglFormat, 
+					 width, 
+					 height, 
+					 0,
+					 oglFormat, 
+					 GL_UNSIGNED_BYTE, 
+					 pixels);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return tex;
+	}
+
+	void freeTexture(texture& tex)
+	{
+		glDeleteTextures(1, &tex.handle);
+		tex = {};
+	}
+
+
+	texture loadTexture(const char* imagePath)
+	{
+		int width, height, format;
+		unsigned char* rawPixelData = nullptr;
+		stbi_set_flip_vertically_on_load(true);
+
+		rawPixelData = stbi_load(imagePath, &width, &height, &format, STBI_default);
+
+		texture tex = makeTexture(width, height, format, rawPixelData); 
+		stbi_image_free(rawPixelData);
+
+		return tex;
+	}
+
+	void setUniform(const shader& shad, GLuint location, const glm::mat4& value)
+	{
+
+	}
+
+	void setUniform(const shader& shad, GLuint location, const texture& value, int textureSlot)
+	{
+
+	}
 
 	void draw(const shader& shad, const geometry& geo) {
 		//bind shader program
