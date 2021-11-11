@@ -26,7 +26,13 @@ glm::mat4 transform::localMat() const {
 
 void transform::setParent(transform* newParent)
 {
+	if (parent == newParent) return;
+	if (parent != nullptr) {
+		parent->removeChild(this);
+		parent = nullptr;
+	}
 	parent = newParent;
+	parent->addChild(this);
 }
 
 transform* transform::getParent() const
@@ -39,6 +45,32 @@ transform* transform::getChildAtIndex(size_t index) const
 	return children[index];
 }
 
+size_t transform::getChildCount() const
+{
+	return size_t(children.size());
+}
+
+glm::mat4 transform::worldMat() const
+{
+	if (parent == nullptr) {
+		return localMat();
+	}
+	return parent->worldMat() * localMat();
+}
+
+glm::mat4 transform::localToWorldMatrix() const
+{
+	if (parent == nullptr) {
+		return glm::identity<glm::mat4>();
+	}
+	return parent->worldMat();
+}
+
+glm::mat4 transform::worldToLocalMatrix() const
+{
+	return glm::inverse(localToWorldMatrix());
+}
+
 void transform::addChild(transform* const child)
 {
 	children.push_back(child);
@@ -46,6 +78,11 @@ void transform::addChild(transform* const child)
 
 void transform::removeChild(transform* const child)
 {
-	//for(size_t)
+	for (size_t i = 0; i < children.size(); ++i) {
+		if (children[i] == child) {
+			children.erase(children.begin() + i);
+			break;
+		}
+	}
 }
 

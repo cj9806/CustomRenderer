@@ -6,6 +6,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "STB/stb_image.h"
+#include "GLM/ext.hpp"
 
 
 namespace aie {
@@ -175,7 +176,7 @@ namespace aie {
 
 	void setUniform(const shader& shad, GLuint location, const glm::mat4& value)
 	{
-
+		glProgramUniformMatrix4fv(shad.program, location, 1, GL_FALSE, glm::value_ptr(value));
 	}
 
 	void setUniform(const shader& shad, GLuint location, const texture& value, int textureSlot)

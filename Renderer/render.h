@@ -10,6 +10,8 @@ namespace aie {
 	{
 		glm::vec4 pos;
 		glm::vec4 vertexColor;
+		glm::vec2 uv;
+		glm::vec3 normal;
 	};
 	struct geometry
 	{
