@@ -30,7 +30,14 @@ namespace aie {
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)0);
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)sizeof(glm::vec4));
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)16);
+		
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)32);
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)40);
+
 
 		//unbind buffers
 		glBindVertexArray(0);
@@ -136,15 +143,15 @@ namespace aie {
 		glGenTextures(1, &tex.handle);
 		glBindTexture(GL_TEXTURE_2D, tex.handle);
 
-		glTexImage2D(GL_TEXTURE_2D, //what texture
-					 0, //mipmap level image quality
-					 oglFormat, 
-					 width, 
-					 height, 
-					 0,
-					 oglFormat, 
-					 GL_UNSIGNED_BYTE, 
-					 pixels);
+		glTexImage2D(GL_TEXTURE_2D,   //texture type
+					 0,               //mipmap level/image quality???
+					 oglFormat,       //color format
+					 width,           //width
+					 height,          //height
+					 0,             
+					 oglFormat,       //color format
+					 GL_UNSIGNED_BYTE,//type of data
+					 pixels);         //pointer to data
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -168,6 +175,7 @@ namespace aie {
 
 		rawPixelData = stbi_load(imagePath, &width, &height, &format, STBI_default);
 
+		assert(rawPixelData != nullptr && "Image failed to load.", "Image failed to load");
 		texture tex = makeTexture(width, height, format, rawPixelData); 
 		stbi_image_free(rawPixelData);
 
@@ -181,7 +189,13 @@ namespace aie {
 
 	void setUniform(const shader& shad, GLuint location, const texture& value, int textureSlot)
 	{
+		//specify texture slot we atr working eiht
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		//bind the texture to that slot
+		glBindTexture(GL_TEXTURE_2D, value.handle);
 
+		//assign the texture slot to the shader
+		glProgramUniform1i(shad.program, location, textureSlot);
 	}
 
 	void draw(const shader& shad, const geometry& geo) {

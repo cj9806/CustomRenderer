@@ -13,23 +13,29 @@ int main() {
 	vertex triVerts[] =
 	{
 		{// vertex 0
-			{-.5f,-.5f,0,1},//vertex 0 position bottom left
-			{1,0,0,1},
+			{0,1,0,1},//vertex 0 position top
+			{0,0,0,1},
+			{.5,1},
+			{0,0,1}
+		},
+		{
+			{-.5,0,0,1},//bottom left
+			{0,0,0,1},
 			{0,0},
 			{0,0,1}
 		},
 		{
-			{.5f,-.5f,0,1},//bottom right
-			{0,0,1,1},
+			{.5,0,0,1},//botttom right
+			{0,0,0,1},
 			{1,0},
 			{0,0,1}
-		},
-		{
-			{0,.5f,0,1},//top middle
-			{0,1,0,1},
-			{.5f,.5f},
-			{0,0,1}
 		}
+		//{
+		//	{1,1,0,1},//top right
+		//	{0,0,0,1},
+		//	{0,0},
+		//	{0,0,1}
+		//}
 	};
 	/*vertex planeVerts[] = {
 		{{-.5,.5,0,1}},
@@ -54,6 +60,7 @@ int main() {
 		"out vec4 outColor;\n"
 		"void main() { outColor = vertColor; }";*/
 	shader basicShad = loadShader("res\\mvp.vert", "res\\mvp.frag");
+	texture tritexture = loadTexture("res\\uvchecker.jpg");
 	//shader basicShad = makeShader(basicVert, basicFrag);
 
 	glm::mat4 tri_model = glm::identity<glm::mat4>();
@@ -69,6 +76,7 @@ int main() {
 		setuniform(basicShad, 0, cam_proj);
 		setuniform(basicShad, 1, cam_view);
 		setuniform(basicShad, 2, tri_model);
+		setUniform(basicShad, 3, tritexture,0);
 
 		draw(basicShad, basicTriangleGeo);
 	}
