@@ -12,41 +12,61 @@ int main() {
 	//create a triangle
 	vertex triVerts[] =
 	{
-		{// vertex 0
-			{0,1,0,1},//vertex 0 position top
-			{0,0,0,1},
-			{.5,1},
-			{0,0,1}
-		},
-		{
-			{-.5,0,0,1},//bottom left
-			{0,0,0,1},
-			{0,0},
-			{0,0,1}
-		},
-		{
-			{.5,0,0,1},//botttom right
-			{0,0,0,1},
-			{1,0},
-			{0,0,1}
-		}
-		//{
-		//	{1,1,0,1},//top right
-		//	{0,0,0,1},
-		//	{0,0},
-		//	{0,0,1}
-		//}
+		/*vertex structure*/
+		//start back face
+		{{-.5,.5,.5,1},{0,0,0,1},{0,1},{0,0,1}},
+		{{-.5,-.5,.5,1},{0,0,0,1},{0,0},{0,0,1}},
+		{{.5,-.5,.5,1},{0,0,0,1},{1,0},{0,0,1}},
+		{{.5,.5,.5,1},{0,0,0,1},{1,1},{0,0,1}},
+		//end face 1
+
+		//start face2
+		{{.5,.5,-.5,1},{0,0,0,1},{0,1},{1,0,0}},
+		{{.5,-.5,-.5,1},{0,0,0,1},{0,0},{1,0,0}},
+		{{.5,-.5,.5,1},{0,0,0,1},{1,0},{1,0,0}},
+		{{.5,.5,.5,1},{0,0,0,1},{1,1},{1,0,0}},
+		//end face 2
+
+		//start face 3
+		{{.5,.5,-.5,1},{0,0,0,1},{0,1},{0,0,-1}},
+		{{.5,-.5,-.5,1},{0,0,0,1},{0,0},{0,0,-1}},
+		{{-.5,-.5,-.5,1},{0,0,0,1},{1,0},{0,0,-1}},
+		{{-.5,.5,-.5,1},{0,0,0,1},{1,1},{0,0,-1}},
+		//end face 3
+
+		//start face 4
+		{{-.5,.5,-.5,1},{0,0,0,1},{0,1},{-1,0,0}},
+		{{-.5,-.5,-.5,1},{0,0,0,1},{0,0},{-1,0,0}},
+		{{-.5,-.5,.5,1},{0,0,0,1},{1,0},{-1,0,0}},
+		{{-.5,.5,.5,1},{0,0,0,1},{1,1},{-1,0,0}},
+		//end face 4
+
+		//start face 5
+		{{-.5,.5,-.5,1},{0,0,0,1},{0,1},{0,1,0}},
+		{{.5,.5,-.5,1},{0,0,0,1},{0,0},{0,1,0}},
+		{{.5,.5,.5,1},{0,0,0,1},{1,0},{0,1,0}},
+		{{-.5,.5,.5,1},{0,0,0,1},{1,1},{0,1,0}},
+		//end face 5
+
+		//start face 6
+		{{-.5,-.5,-.5,1},{0,0,0,1},{0,1},{0,-1,0}},
+		{{.5,-.5,-.5,1},{0,0,0,1},{0,0},{0,-1,0}},
+		{{.5,-.5,.5,1},{0,0,0,1},{1,0},{0,-1,0}},
+		{{-.5,-.5,.5,1},{0,0,0,1},{1,1},{0,-1,0}}
+		//end face 6
 	};
-	/*vertex planeVerts[] = {
-		{{-.5,.5,0,1}},
-		{{-.5,-.5,0,1}},
-		{{.5,-.5,0,1}},
-		{{.5,.5,0,1}}
-	};*/
-	unsigned int triIndices[] = { 0,1,2 };
+	
+	unsigned int triIndices[] = { 0,1,2,0,2,3,
+								  7,6,4,6,5,4,
+								  8,9,10,8,10,11,
+								  12,13,14,12,14,15,
+								  19,18,16,18,17,16,
+								  20,21,22,20,22,23};
+	/*unsigned int triIndices[] = { 0,1,2,0,2,3,
+							  4,5,6,4,6,7 };*/
 	//unsigned int planeIndices[] = { 0,1,2,0,2,3 };
 
-	geometry basicTriangleGeo = makeGeometry(triVerts, 3, triIndices, 3);
+	geometry basicTriangleGeo = makeGeometry(triVerts, 24, triIndices, 36);
 	//create a shader
 	/*const char* basicVert =
 		"#version 430 core\n"
@@ -61,11 +81,14 @@ int main() {
 		"void main() { outColor = vertColor; }";*/
 	shader basicShad = loadShader("res\\mvp.vert", "res\\mvp.frag");
 	texture tritexture = loadTexture("res\\uvchecker.jpg");
+
+	glm::vec3 ambLight = glm::vec3(.2f, .2f, .2f);
+	glm::vec3 dirLight = glm::normalize(glm::vec3(-1, -1, -1));
 	//shader basicShad = makeShader(basicVert, basicFrag);
 
 	glm::mat4 tri_model = glm::identity<glm::mat4>();
 	glm::mat4 cam_view = glm::lookAt(glm::vec3(0, 1, 5),
-									 glm::vec3(0, 0, 0),
+									 glm::vec3(0, 1, 0),
 									 glm::vec3(0, 1, 0));
 	glm::mat4 cam_proj = glm::perspective(glm::radians(60.0f), 640.0f / 480.0f, .1f, 100.0f);
 	//update render loop
@@ -73,10 +96,14 @@ int main() {
 		window.tick();
 		window.clear();
 
-		setuniform(basicShad, 0, cam_proj);
-		setuniform(basicShad, 1, cam_view);
-		setuniform(basicShad, 2, tri_model);
+		tri_model = glm::rotate(tri_model, .05f, glm::vec3(0, .25, 0));
+		tri_model = glm::rotate(tri_model, .05f, glm::vec3(0, 0, -.25));
+		setUniform(basicShad, 0, cam_proj);
+		setUniform(basicShad, 1, cam_view);
+		setUniform(basicShad, 2, tri_model);
 		setUniform(basicShad, 3, tritexture,0);
+		setUniform(basicShad, 4, ambLight);
+		setUniform(basicShad, 5, dirLight);
 
 		draw(basicShad, basicTriangleGeo);
 	}

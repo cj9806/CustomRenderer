@@ -111,12 +111,6 @@ namespace aie {
 		glDeleteProgram(shad.program);
 	}
 
-	void setuniform(const shader& shad, GLuint location, glm::mat4& value)
-	{
-		glProgramUniformMatrix4fv(shad.program, location, 1, GL_FALSE, &value[0][0]);
-		
-	}
-
 	texture makeTexture(unsigned width, unsigned height, unsigned channels, const unsigned char* pixels)
 	{
 		texture tex = { 0,width,height,channels };
@@ -196,6 +190,11 @@ namespace aie {
 
 		//assign the texture slot to the shader
 		glProgramUniform1i(shad.program, location, textureSlot);
+	}
+
+	void setUniform(const shader& shad, GLuint location, const glm::vec3 value)
+	{
+		glProgramUniform3fv(shad.program, location, 1, glm::value_ptr(value));
 	}
 
 	void draw(const shader& shad, const geometry& geo) {

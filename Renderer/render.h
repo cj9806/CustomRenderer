@@ -33,8 +33,6 @@ namespace aie {
 	shader loadShader(const char* vertPath, const char* fragPath);
 	void freeShader(shader& shad);
 
-	void setuniform(const shader& shad, GLuint location, glm::mat4& value);
-
 	texture loadTexture(const char* imagePath);
 	texture makeTexture(unsigned width, unsigned height, unsigned channels,
 		const unsigned char* pixels);
@@ -42,6 +40,7 @@ namespace aie {
 
 	void setUniform(const shader &shad, GLuint location, const glm::mat4& value);
 	void setUniform(const shader& shad, GLuint location, const texture& value, int textureSlot);
+	void setUniform(const shader& shad, GLuint location, const glm::vec3 value);
 
 	void draw(const shader& shad, const geometry& geo);
 }
